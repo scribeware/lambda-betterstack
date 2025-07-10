@@ -1,15 +1,15 @@
 # For full config options, check the docs:
 #    docs.serverless.com
 
-service: lambda-papertrail
+service: lambda-betterstack
 
 provider:
   name: aws
-  runtime: nodejs12.x
+  runtime: nodejs18.x
   region: us-east-1
   environment:
-    PAPERTRAIL_HOST: ${ssm:/papertrail/${opt:stage}/host}
-    PAPERTRAIL_PORT: ${ssm:/papertrail/${opt:stage}/port}
+    LOGTAIL_SOURCE_TOKEN: ${ssm:/logtail/${opt:stage}/source-token}
+    LOGTAIL_ENDPOINT: ${ssm:/logtail/${opt:stage}/endpoint}
 
 functions:
   forwarder:

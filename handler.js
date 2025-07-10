@@ -3,9 +3,8 @@
 const path = require('path');
 const zlib = require('zlib');
 const winston = require('winston');
-
-// Register Papertrail transport w/ Winston.
-require('winston-papertrail');
+const { Logtail } = require('@logtail/node');
+const { LogtailTransport } = require('@logtail/winston');
 
 module.exports.log = (event, context, callback) => {
   // Parse incoming Cloudwatch logs, which are base64-encoded & gzipped:
@@ -19,22 +18,29 @@ module.exports.log = (event, context, callback) => {
       // Parse a human-readable hostname & program from the log group.
       const logGroup = path.parse(json.logGroup);
 
-      // Configure the Papertrail connection.
-      const papertrail = new winston.transports.Papertrail({
-        host: process.env.PAPERTRAIL_HOST,
-        port: process.env.PAPERTRAIL_PORT,
-        hostname: logGroup.name, // e.g. 'bertly-dev-app'
-        program: logGroup.dir.replace('/aws/', ''), // e.g. 'lambda'
-        logFormat: (level, message) => message,
-        flushOnClose: true,
+      // Create a Logtail client
+      const logtail = new Logtail(process.env.LOGTAIL_SOURCE_TOKEN, {
+        endpoint: process.env.LOGTAIL_ENDPOINT,
       });
 
-      // Forward each of the log messages to Papertrail.
-      const logger = new winston.Logger({ transports: [papertrail] });
+      // Create a Winston logger with Logtail transport
+      const logger = winston.createLogger({
+        transports: [new LogtailTransport(logtail)],
+        defaultMeta: {
+          hostname: logGroup.name, // e.g. 'bertly-dev-app'
+          program: logGroup.dir.replace('/aws/', ''), // e.g. 'lambda'
+        },
+      });
+
+      // Forward each of the log messages to Logtail.
       json.logEvents.forEach((log) => logger.info(log.message));
 
-      logger.close();
-      callback(null);
+      // Ensure all logs are sent to Logtail
+      logtail.flush().then(() => {
+        callback(null);
+      }).catch((err) => {
+        callback(err);
+      });
     }
   });
 };
