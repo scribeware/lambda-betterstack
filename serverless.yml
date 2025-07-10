@@ -5,11 +5,11 @@ service: lambda-betterstack
 
 provider:
   name: aws
-  runtime: nodejs18.x
-  region: us-east-1
+  runtime: nodejs20.x
+  region: us-west-2
   environment:
-    LOGTAIL_SOURCE_TOKEN: ${ssm:/logtail/${opt:stage}/source-token}
-    LOGTAIL_ENDPOINT: ${ssm:/logtail/${opt:stage}/endpoint}
+    LOGTAIL_SOURCE_TOKEN: ${ssm:/prod/logtail-source-token}
+    LOGTAIL_ENDPOINT: ${ssm:/prod/logtail-endpoint}
 
 functions:
   forwarder:

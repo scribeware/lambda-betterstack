@@ -36,11 +36,14 @@ module.exports.log = (event, context, callback) => {
       json.logEvents.forEach((log) => logger.info(log.message));
 
       // Ensure all logs are sent to Logtail
-      logtail.flush().then(() => {
-        callback(null);
-      }).catch((err) => {
-        callback(err);
-      });
+      logtail
+        .flush()
+        .then(() => {
+          callback(null);
+        })
+        .catch((err) => {
+          callback(err);
+        });
     }
   });
 };
