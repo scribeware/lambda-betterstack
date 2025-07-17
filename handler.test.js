@@ -1,7 +1,6 @@
 'use strict';
 
 const { mockInfo } = require('winston');
-const { mockFlush } = require('@logtail/node');
 const handler = require('./handler');
 
 const createEvent = (data) => ({ awslogs: { data } });
@@ -12,15 +11,19 @@ it('parses single log from CloudWatch', (done) => {
   );
 
   // Set up environment variables for test
-  process.env.LOGTAIL_SOURCE_TOKEN = 'test-token';
-  process.env.LOGTAIL_ENDPOINT = 'https://test-endpoint.com';
+  process.env.GOOGLE_CLOUD_PROJECT_ID = 'test-project';
+  process.env.GOOGLE_CLOUD_LOG_NAME = 'test-log';
 
-  handler.log(event, {}, (err) => {
+  const mockContext = {
+    functionName: 'test-function',
+    invokedFunctionArn: 'arn:aws:lambda:us-west-2:123456789012:function:test-function',
+  };
+
+  handler.log(event, mockContext, (err) => {
     expect(err).toBeNull();
     expect(mockInfo).toHaveBeenCalledWith(
       'START RequestId: 6bdd9c87-9a8a-11e8-927a-49273c6d26cc Version: $LATEST\n',
     );
-    expect(mockFlush).toHaveBeenCalled();
 
     done();
   });
@@ -32,13 +35,17 @@ it('parses batched logs from CloudWatch', (done) => {
   );
 
   // Set up environment variables for test
-  process.env.LOGTAIL_SOURCE_TOKEN = 'test-token';
-  process.env.LOGTAIL_ENDPOINT = 'https://test-endpoint.com';
+  process.env.GOOGLE_CLOUD_PROJECT_ID = 'test-project';
+  process.env.GOOGLE_CLOUD_LOG_NAME = 'test-log';
 
-  handler.log(event, {}, (err) => {
+  const mockContext = {
+    functionName: 'test-function',
+    invokedFunctionArn: 'arn:aws:lambda:us-west-2:123456789012:function:test-function',
+  };
+
+  handler.log(event, mockContext, (err) => {
     expect(err).toBeNull();
     expect(mockInfo).toHaveBeenCalledTimes(15);
-    expect(mockFlush).toHaveBeenCalled();
 
     done();
   });

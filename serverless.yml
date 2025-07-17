@@ -1,15 +1,16 @@
 # For full config options, check the docs:
 #    docs.serverless.com
 
-service: lambda-betterstack
+service: lambda-google-cloud-logging
 
 provider:
   name: aws
   runtime: nodejs20.x
   region: us-west-2
   environment:
-    LOGTAIL_SOURCE_TOKEN: ${ssm:/prod/logtail-source-token}
-    LOGTAIL_ENDPOINT: ${ssm:/prod/logtail-endpoint}
+    GOOGLE_CLOUD_PROJECT_ID: ${ssm:/prod/google-cloud-project-id}
+    GOOGLE_CLOUD_LOG_NAME: ${ssm:/prod/google-cloud-log-name, 'cloudwatch-forwarded-logs'}
+    GOOGLE_APPLICATION_CREDENTIALS: ${ssm:/prod/google-application-credentials}
 
 functions:
   forwarder:

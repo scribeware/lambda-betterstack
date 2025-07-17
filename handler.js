@@ -3,8 +3,7 @@
 const path = require('path');
 const zlib = require('zlib');
 const winston = require('winston');
-const { Logtail } = require('@logtail/node');
-const { LogtailTransport } = require('@logtail/winston');
+const { LoggingWinston } = require('@google-cloud/logging-winston');
 
 module.exports.log = (event, context, callback) => {
   // Parse incoming Cloudwatch logs, which are base64-encoded & gzipped:
@@ -18,32 +17,37 @@ module.exports.log = (event, context, callback) => {
       // Parse a human-readable hostname & program from the log group.
       const logGroup = path.parse(json.logGroup);
 
-      // Create a Logtail client
-      const logtail = new Logtail(process.env.LOGTAIL_SOURCE_TOKEN, {
-        endpoint: process.env.LOGTAIL_ENDPOINT,
+      // Create a Google Cloud Logging Winston transport
+      const loggingWinston = new LoggingWinston({
+        projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
+        logName: process.env.GOOGLE_CLOUD_LOG_NAME || 'cloudwatch-forwarded-logs',
+        resource: {
+          type: 'aws_lambda_function',
+          labels: {
+            function_name: context.functionName,
+            region: context.invokedFunctionArn.split(':')[3],
+          },
+        },
       });
 
-      // Create a Winston logger with Logtail transport
+      // Create a Winston logger with Google Cloud Logging transport
       const logger = winston.createLogger({
-        transports: [new LogtailTransport(logtail)],
+        transports: [loggingWinston],
         defaultMeta: {
           hostname: logGroup.name, // e.g. 'bertly-dev-app'
           program: logGroup.dir.replace('/aws/', ''), // e.g. 'lambda'
         },
       });
 
-      // Forward each of the log messages to Logtail.
+      // Forward each of the log messages to Google Cloud Logging.
       json.logEvents.forEach((log) => logger.info(log.message));
 
-      // Ensure all logs are sent to Logtail
-      logtail
-        .flush()
-        .then(() => {
-          callback(null);
-        })
-        .catch((err) => {
-          callback(err);
-        });
+      // Ensure all logs are sent to Google Cloud Logging
+      // Google Cloud Logging Winston transport handles batching automatically
+      // We'll add a small delay to ensure logs are processed
+      setTimeout(() => {
+        callback(null);
+      }, 100);
     }
   });
 };

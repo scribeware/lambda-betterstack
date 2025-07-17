@@ -1,7 +1,7 @@
 {
-  "name": "lambda-betterstack",
+  "name": "lambda-google-cloud-logging",
   "version": "1.0.0",
-  "description": "A Lambda function to forward CloudWatch logs to Betterstack/Logtail",
+  "description": "A Lambda function to forward CloudWatch logs to Google Cloud Logging",
   "main": "handler.js",
   "scripts": {
     "test": "jest --watch",
@@ -47,8 +47,7 @@
     "serverless": "^3.40.0"
   },
   "dependencies": {
-    "@logtail/node": "^0.5.5",
-    "@logtail/winston": "^0.5.5",
+    "@google-cloud/logging-winston": "^6.0.0",
     "winston": "^3.17.0",
     "zlib": "^1.0.5"
   },
