@@ -8,9 +8,9 @@ provider:
   runtime: nodejs20.x
   region: us-west-2
   environment:
-    GOOGLE_CLOUD_PROJECT_ID: ${ssm:/prod/google-cloud-project-id}
-    GOOGLE_CLOUD_LOG_NAME: ${ssm:/prod/google-cloud-log-name, 'cloudwatch-forwarded-logs'}
-    GOOGLE_APPLICATION_CREDENTIALS: ${ssm:/prod/google-application-credentials}
+    GOOGLE_CLOUD_PROJECT_ID: scribeware5
+    GOOGLE_CLOUD_LOG_NAME: lambda
+    GOOGLE_APPLICATION_CREDENTIALS: ${ssm(raw):/prod/google-application-credentials}
 
 functions:
   forwarder:
