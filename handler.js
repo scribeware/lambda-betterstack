@@ -19,9 +19,11 @@ module.exports.log = (event, context, callback) => {
 
       // Create a Google Cloud Logging Winston transport
       const loggingWinston = new LoggingWinston({
+        credentials: JSON.parse(
+          process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON,
+        ),
         projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
-        logName:
-          process.env.GOOGLE_CLOUD_LOG_NAME || 'cloudwatch-forwarded-logs',
+        logName: process.env.GOOGLE_CLOUD_LOG_NAME || 'lambda',
         resource: {
           type: 'aws_lambda_function',
           labels: {

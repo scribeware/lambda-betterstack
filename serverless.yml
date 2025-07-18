@@ -10,7 +10,7 @@ provider:
   environment:
     GOOGLE_CLOUD_PROJECT_ID: scribeware5
     GOOGLE_CLOUD_LOG_NAME: lambda
-    GOOGLE_APPLICATION_CREDENTIALS: ${ssm(raw):/prod/google-application-credentials}
+    GOOGLE_APPLICATION_CREDENTIALS_JSON: ${ssm(raw):/prod/google-application-credentials}
 
 functions:
   forwarder:
